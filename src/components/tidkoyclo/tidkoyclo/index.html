@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Map Viewer - Alternative to Google Maps</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>🗺️</text></svg>">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <link rel="stylesheet" href="./MapApp.css">
+</head>
+<body>
+  <div class="map-app">
+    <div class="map-header">
+      <h1>🗺️ Free Map Viewer</h1>
+      <p>An open-source alternative to Google Maps powered by OpenStreetMap</p>
+    </div>
+
+    <div class="map-controls">
+      <!-- SECTION 1: SEARCH & EXPLORE -->
+      <div class="control-section">
+        <div class="section-header">
+          <span class="section-icon">🔍</span>
+          <span class="section-title">Search & Explore</span>
+        </div>
+        <div class="section-content">
+          <p class="section-desc">Search for any city or place and navigate to it</p>
+          <div class="search-wrapper">
+            <div class="search-container">
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search city, place, address..."
+                class="search-input"
+                autocomplete="off"
+              />
+              <button id="searchBtn" class="btn btn-primary">Search</button>
+            </div>
+            <div id="searchSuggestions" class="search-suggestions hidden"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: MAP LAYERS -->
+      <div class="control-section">
+        <div class="section-header">
+          <span class="section-icon">🎨</span>
+          <span class="section-title">Map Layers</span>
+        </div>
+        <div class="section-content">
+          <div class="style-buttons">
+            <div class="button-group">
+              <button onclick="changeMapStyle('google-streets')" class="btn active" data-style="google-streets">Streets</button>
+              <button onclick="changeMapStyle('google-hybrid')" class="btn" data-style="google-hybrid">Hybrid</button>
+            </div>
+            <div class="button-group">
+              <button onclick="changeMapStyle('satellite')" class="btn" data-style="satellite">Satellite</button>
+              <button onclick="changeMapStyle('dark')" class="btn" data-style="dark">Dark</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: NAVIGATION ROUTES -->
+      <div class="control-section">
+        <div class="section-header">
+          <span class="section-icon">🧭</span>
+          <span class="section-title">Navigation</span>
+        </div>
+        <div class="section-content">
+          <div class="routing-wrapper">
+            <input
+              type="text"
+              id="startInput"
+              placeholder="From..."
+              class="routing-input"
+            />
+            <input
+              type="text"
+              id="endInput"
+              placeholder="To..."
+              class="routing-input"
+            />
+            <div class="routing-buttons">
+              <button id="routeBtn" class="btn btn-primary">Go</button>
+              <button id="clearRouteBtn" class="btn btn-danger">Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="mapContainer" class="map-container"></div>
+
+    <div id="routeInfo" class="route-info hidden">
+      <div class="route-details">
+        <h3 id="routeTitle">Journey Route</h3>
+        <div class="route-stats">
+          <div class="stat">
+            <span class="stat-label">Distance:</span>
+            <span id="routeDistance" class="stat-value">0 km</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Duration:</span>
+            <span id="routeDuration" class="stat-value">0 min</span>
+          </div>
+        </div>
+        <div class="instructions-container">
+          <h4>📍 Turn-by-Turn Directions</h4>
+          <div id="routeInstructions" class="route-instructions"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <!-- Leaflet Routing Machine -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-routing-machine/3.2.12/leaflet-routing-machine.min.js"></script>
+  <!-- Leaflet Control Geocoder -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-control-geocoder/2.4.0/Control.Geocoder.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-control-geocoder/2.4.0/Control.Geocoder.min.js"></script>
+  <script src="./index.js"></script>
+</body>
+</html>

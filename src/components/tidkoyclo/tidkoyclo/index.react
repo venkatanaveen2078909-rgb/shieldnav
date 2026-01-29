@@ -1,0 +1,287 @@
+import React, { useState, useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import './MapApp.css';
+
+// Fix for Leaflet marker icons
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+const FreeMapApp = () => {
+  const mapContainer = useRef(null);
+  const map = useRef(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [markers, setMarkers] = useState([]);
+  const [userLocation, setUserLocation] = useState(null);
+  const [mapStyle, setMapStyle] = useState('osm'); // osm, dark, satellite
+  const markersRef = useRef([]);
+
+  // Initialize map
+  useEffect(() => {
+    if (map.current) return;
+
+    map.current = L.map(mapContainer.current).setView([20, 0], 2);
+
+    // Add OpenStreetMap tiles
+    addTileLayer(mapStyle);
+
+    // Get user location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation([latitude, longitude]);
+          map.current.setView([latitude, longitude], 13);
+          
+          // Add user location marker
+          L.circleMarker([latitude, longitude], {
+            radius: 8,
+            fillColor: '#4285F4',
+            color: '#fff',
+            weight: 2,
+            opacity: 1,
+            fillOpacity: 0.8,
+          })
+            .bindPopup('Your Location')
+            .addTo(map.current);
+        },
+        () => {
+          console.log('Geolocation denied');
+        }
+      );
+    }
+
+    // Handle map clicks
+    map.current.on('click', (e) => {
+      const { lat, lng } = e.latlng;
+      addMarker(lat, lng, 'Clicked Location');
+    });
+
+    return () => {
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    };
+  }, []);
+
+  // Add tile layer based on style
+  const addTileLayer = (style) => {
+    if (map.current) {
+      map.current.eachLayer((layer) => {
+        if (layer instanceof L.TileLayer) {
+          map.current.removeLayer(layer);
+        }
+      });
+
+      let tileUrl;
+      let attribution;
+
+      switch (style) {
+        case 'dark':
+          tileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+          attribution = '© OpenStreetMap contributors, © CartoDB';
+          break;
+        case 'satellite':
+          tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+          attribution = '© Esri';
+          break;
+        default: // osm
+          tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+          attribution = '© OpenStreetMap contributors';
+      }
+
+      L.tileLayer(tileUrl, {
+        attribution,
+        maxZoom: 19,
+      }).addTo(map.current);
+    }
+  };
+
+  // Add marker to map
+  const addMarker = (lat, lng, title = 'Location') => {
+    if (!map.current) return;
+
+    const marker = L.marker([lat, lng])
+      .bindPopup(
+        `<div class="popup-content"><strong>${title}</strong><br/>
+         Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}<br/>
+         <button onclick="window.removeMarker(${lat}, ${lng})">Remove</button></div>`
+      )
+      .addTo(map.current);
+
+    markersRef.current.push(marker);
+    setMarkers([...markers, { lat, lng, title }]);
+  };
+
+  // Remove marker
+  window.removeMarker = (lat, lng) => {
+    markersRef.current = markersRef.current.filter((marker) => {
+      if (marker.getLatLng().lat === lat && marker.getLatLng().lng === lng) {
+        map.current.removeLayer(marker);
+        return false;
+      }
+      return true;
+    });
+    setMarkers(markers.filter((m) => !(m.lat === lat && m.lng === lng)));
+  };
+
+  // Search for location using Nominatim
+  const searchLocation = async () => {
+    if (!searchQuery.trim()) return;
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
+          searchQuery
+        )}&format=json&limit=1`
+      );
+      const data = await response.json();
+
+      if (data.length > 0) {
+        const { lat, lon, display_name } = data[0];
+        map.current.setView([lat, lon], 13);
+        addMarker(lat, lon, display_name);
+        setSearchQuery('');
+      } else {
+        alert('Location not found');
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      alert('Error searching location');
+    }
+  };
+
+  // Clear all markers
+  const clearMarkers = () => {
+    markersRef.current.forEach((marker) => {
+      map.current.removeLayer(marker);
+    });
+    markersRef.current = [];
+    setMarkers([]);
+  };
+
+  // Change map style
+  const handleMapStyleChange = (style) => {
+    setMapStyle(style);
+    addTileLayer(style);
+  };
+
+  return (
+    <div className="map-app">
+      <div className="map-header">
+        <h1>🗺️ Free Map Viewer</h1>
+        <p>An open-source alternative to Google Maps powered by OpenStreetMap</p>
+      </div>
+
+      <div className="map-controls">
+        <div className="search-section">
+          <input
+            type="text"
+            placeholder="Search location (e.g., Paris, Tokyo, New York)..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && searchLocation()}
+            className="search-input"
+          />
+          <button onClick={searchLocation} className="btn btn-primary">
+            Search
+          </button>
+        </div>
+
+        <div className="style-section">
+          <label>Map Style:</label>
+          <button
+            className={`btn ${mapStyle === 'osm' ? 'active' : ''}`}
+            onClick={() => handleMapStyleChange('osm')}
+          >
+            Light
+          </button>
+          <button
+            className={`btn ${mapStyle === 'dark' ? 'active' : ''}`}
+            onClick={() => handleMapStyleChange('dark')}
+          >
+            Dark
+          </button>
+          <button
+            className={`btn ${mapStyle === 'satellite' ? 'active' : ''}`}
+            onClick={() => handleMapStyleChange('satellite')}
+          >
+            Satellite
+          </button>
+        </div>
+
+        <div className="action-section">
+          <button onClick={clearMarkers} className="btn btn-danger">
+            Clear Markers
+          </button>
+        </div>
+      </div>
+
+      <div ref={mapContainer} className="map-container" />
+
+      <div className="map-info">
+        <div className="info-panel">
+          <h3>📍 Markers ({markers.length})</h3>
+          {markers.length > 0 ? (
+            <ul className="markers-list">
+              {markers.map((marker, idx) => (
+                <li key={idx}>
+                  <strong>{marker.title}</strong>
+                  <br />
+                  Lat: {marker.lat.toFixed(4)}, Lng: {marker.lng.toFixed(4)}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Click on the map or search to add markers</p>
+          )}
+        </div>
+
+        <div className="info-panel">
+          <h3>ℹ️ About</h3>
+          <p>
+            <strong>Free Map Viewer</strong> uses:
+          </p>
+          <ul>
+            <li>
+              <a href="https://leafletjs.com/" target="_blank" rel="noopener noreferrer">
+                Leaflet.js
+              </a>
+              {' - Lightweight mapping library'}
+            </li>
+            <li>
+              <a
+                href="https://www.openstreetmap.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                OpenStreetMap
+              </a>
+              {' - Free map data'}
+            </li>
+            <li>
+              <a
+                href="https://nominatim.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Nominatim
+              </a>
+              {' - Location search'}
+            </li>
+          </ul>
+          <p style={{ fontSize: '0.85em', marginTop: '10px', color: '#666' }}>
+            100% free and open-source. No API keys required!
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FreeMapApp;

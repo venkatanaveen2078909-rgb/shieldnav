@@ -1,0 +1,124 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import './components/MapApp.css';
+
+@import './components/MapApp.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Premium Dark Mode Default */
+
+    /* Background: Deep Rich Black */
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+
+    /* Cards: Slightly lighter glass black */
+    --card: 222 47% 8%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 8%;
+    --popover-foreground: 210 40% 98%;
+
+    /* Primary: Vibrant Tech Blue (Matches Logo Shield Blue) */
+    /* Hex approx #0066FF */
+    --primary: 217 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: Darker Graphite */
+    --secondary: 217 33% 15%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    /* Accent: Safety Green (Matches Logo Shield Green) */
+    /* Hex approx #10B981 */
+    --accent: 150 100% 40%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Destructive: Urgent Red (Matches Logo Dot) */
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --warning: 45 100% 50%;
+    --warning-foreground: 0 0% 0%;
+
+    --border: 217 33% 20%;
+    --input: 217 33% 20%;
+    --ring: 217 100% 50%;
+
+    --radius: 1rem;
+
+    /* Safety Indicators */
+    --safe: 150 100% 40%;
+    --caution: 45 100% 50%;
+    --danger: 0 100% 50%;
+
+    /* Sidebar specific */
+    --sidebar-background: 222 47% 5%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 33% 15%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 20%;
+    --sidebar-ring: 217 100% 50%;
+  }
+
+  .dark {
+    --background: 222 47% 4%;
+    --foreground: 210 40% 98%;
+    /* Same as root */
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Outfit', sans-serif;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    @apply bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl;
+  }
+
+  .glass-panel {
+    @apply bg-black/40 backdrop-blur-lg border border-white/10;
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-cyan-400 to-green-500;
+  }
+
+  .map-overlay {
+    @apply absolute z-10 pointer-events-none;
+  }
+
+  .map-interactive {
+    @apply pointer-events-auto;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
