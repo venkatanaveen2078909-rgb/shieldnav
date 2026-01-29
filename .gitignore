@@ -1,4 +1,13 @@
-# Logs
+# ===============================
+# ENVIRONMENT / SECRETS (CRITICAL)
+# ===============================
+.env
+.env.*
+*.local
+
+# ===============================
+# LOGS
+# ===============================
 logs
 *.log
 npm-debug.log*
@@ -7,15 +16,29 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# ===============================
+# DEPENDENCIES
+# ===============================
+node_modules/
 
-# Editor directories and files
+# ===============================
+# BUILD OUTPUT
+# ===============================
+dist/
+dist-ssr/
+build/
+
+# ===============================
+# VITE / CACHE
+# ===============================
+.vite/
+
+# ===============================
+# EDITOR / OS FILES
+# ===============================
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
