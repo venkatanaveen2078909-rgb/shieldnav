@@ -134,11 +134,3 @@ B.Tech CSE | Hackathon Project
 This project is for educational and hackathon purposes.
 
 ---
-
-If you want next, I can:
-- Rewrite this as **hackathon pitch**
-- Create **project explanation for judges**
-- Add **screenshots section**
-- Make a **one-page demo script**
-
-Just say the word 💙
